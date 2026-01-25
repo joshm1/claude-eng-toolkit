@@ -59,11 +59,11 @@ This skill activates when the user mentions:
 - All code must pass strict pyright before being considered complete
 - Type errors are bugs - fix them, don't bypass them
 
-**No Type Shortcuts**
-- Never use `Any` without documented justification
-- Never use `cast()` without documented justification
-- Never use `# type: ignore` without documented justification
-- Treat any type workaround as a code smell requiring explanation
+**No Type Shortcuts - These Are Not Fixes**
+- **Never use `Any`** - it defeats type checking entirely
+- **Never use `cast()`** - it lies to the type checker; fix the type design instead
+- **Never use `# type: ignore`** - it hides real errors; fix the root cause
+- These are not workarounds - they are code smells that indicate broken type design
 
 **Modern Python Type Syntax**
 - Use `list[str]` not `List[str]`
@@ -396,17 +396,14 @@ print(some_function.__annotations__)
 
 Run: `uv run python tmp/inspect_library.py`
 
-### Document Exceptions
+### No Exceptions
 
-If workarounds are truly unavoidable after verification:
+Do not use `Any`, `cast()`, or `# type: ignore` as workarounds. If a library lacks types:
+- Add type stubs (`uv add types-libraryname`)
+- Create a typed wrapper
+- Use a different library with proper typing
 
-```python
-# type: ignore[import]  # third-party library has no type stubs (verified)
-import untyped_library
-
-# Must use Any - external API returns untyped JSON (verified with inspect.signature)
-external_data: dict[str, Any] = fetch_external_api()
-```
+If an external API returns untyped data, create a Pydantic model to validate and type it.
 
 ---
 
@@ -417,10 +414,10 @@ When this skill is activated:
 1. **Check Pyright Config**: Ensure `pyrightconfig.json` exists with strict mode
 2. **Use Modern Syntax**: Always use modern Python type syntax
 3. **Type Check Early**: Run pyright on modified files before proceeding
-4. **No Shortcuts**: Never use `Any`, `cast()`, or `# type: ignore` without user approval
-5. **Fix at Source**: Fix root causes, not symptoms
-6. **Check Violations**: Use provided grep patterns to find common violations
-7. **Verify Libraries**: Inspect library signatures before adding workarounds
+4. **No Shortcuts Ever**: Never use `Any`, `cast()`, or `# type: ignore` - these are not acceptable fixes
+5. **Fix at Source**: Fix root causes, not symptoms - if types don't match, the design is wrong
+6. **Check Violations**: Use provided rg patterns to find violations
+7. **Verify Libraries**: Inspect library signatures before claiming types are missing
 
 ---
 
@@ -751,10 +748,10 @@ Gradually enable stricter checks:
 
 | Avoid | Why | Instead |
 |-------|-----|---------|
-| `Any` without docs | Defeats type checking | Use specific types or document |
+| `Any` | Defeats type checking entirely | Use specific types - never acceptable |
+| `cast()` | Lies to type checker, causes runtime errors | Fix the type design - never acceptable |
+| `# type: ignore` | Hides real errors | Fix root cause - never acceptable |
 | `dict[str, Any]` | No structure | TypedDict or Pydantic |
-| `# type: ignore` | Hides real errors | Fix root cause |
-| `cast()` everywhere | Runtime errors | Proper type design |
 | Huge unions | Unmanageable | Discriminated unions |
 | Missing return types | Inference fails | Always annotate |
 
@@ -764,9 +761,9 @@ Gradually enable stricter checks:
 
 Work is only complete when:
 - [ ] All pyright checks pass with zero errors
-- [ ] No `Any` without documentation
-- [ ] No `cast()` without documentation
-- [ ] No `# type: ignore` without documentation
+- [ ] No `Any` anywhere in code
+- [ ] No `cast()` anywhere in code
+- [ ] No `# type: ignore` anywhere in code
 - [ ] Modern type syntax throughout
 - [ ] All functions have return type annotations
 
@@ -784,6 +781,7 @@ Work is only complete when:
 
 | Skill | Relationship |
 |-------|--------------|
+| ruff-fix | Fixing linting violations with strict type rules |
 | python-code-smell-audit | Complementary code quality checks |
 | python-scripts | Script development standards |
 
