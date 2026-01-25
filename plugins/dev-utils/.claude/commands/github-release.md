@@ -78,7 +78,7 @@ Scan commit messages for conventional commit prefixes:
 | Prefix Pattern | Version Bump |
 |----------------|--------------|
 | `BREAKING CHANGE:` in body | **major** |
-| `feat!:` or `fix!:` (with `!`) | **major** |
+| `feat!:` or `fix!:` (with '!') | **major** |
 | `feat:` or `feat(scope):` | **minor** |
 | `fix:`, `perf:`, `refactor:` | **patch** |
 | `docs:`, `style:`, `test:`, `chore:`, `ci:`, `build:` | **patch** |
