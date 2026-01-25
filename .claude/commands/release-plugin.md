@@ -1,6 +1,7 @@
 ---
 name: release-plugin
 description: Release a plugin with version bump, commit, and git tag
+argument-hint: <plugin> [patch|minor|major]
 arguments:
   - name: plugin
     description: Plugin name (e.g., browser-testing, python-dev)
@@ -15,14 +16,25 @@ arguments:
 
 Automate plugin release workflow: stage plugin changes → version bump → commit → tag.
 
+## Arguments
+
+Parse from `$ARGUMENTS`:
+- **plugin** (required): Plugin name (e.g., `browser-testing`, `python-dev`, `dev-utils`)
+- **bump** (optional): Version bump type - `patch` (default), `minor`, or `major`
+
+**Examples:**
+- `/release-plugin python-dev` → patch bump for python-dev
+- `/release-plugin dev-utils minor` → minor bump for dev-utils
+- `/release-plugin browser-testing major` → major bump for browser-testing
+
 ## Steps
 
-1. **Check for plugin changes** in `plugins/$ARGUMENTS.plugin/` directory
-   - Run `git status plugins/$ARGUMENTS.plugin/` to see staged/unstaged/untracked files
+1. **Check for plugin changes** in `plugins/{plugin}/` directory
+   - Run `git status plugins/{plugin}/` to see staged/unstaged/untracked files
    - If no changes exist, warn the user and ask if they want to proceed with just a version bump
-2. **Stage all plugin changes** with `git add plugins/$ARGUMENTS.plugin/`
-3. **Read current marketplace.json** to get the current version for `$ARGUMENTS.plugin`
-4. **Calculate new version** based on `$ARGUMENTS.bump` (default: patch)
+2. **Stage all plugin changes** with `git add plugins/{plugin}/`
+3. **Read current marketplace.json** to get the current version for `{plugin}`
+4. **Calculate new version** based on `{bump}` (default: patch)
    - patch: 1.2.3 → 1.2.4
    - minor: 1.2.3 → 1.3.0
    - major: 1.2.3 → 2.0.0
@@ -38,11 +50,11 @@ Automate plugin release workflow: stage plugin changes → version bump → comm
 
 ## Critical Rules
 
-- **ALWAYS check `git status plugins/$ARGUMENTS.plugin/`** FIRST before doing anything else
+- **ALWAYS check `git status plugins/{plugin}/`** FIRST before doing anything else
 - **ALWAYS stage plugin directory changes** before updating marketplace.json
 - **NEVER commit just marketplace.json** if there are unstaged plugin changes
 - **NEVER use "Release vX.Y.Z" as the commit title** - describe what was actually added/changed
-- Use `git add plugins/$ARGUMENTS.plugin/` to add all changes including untracked files
+- Use `git add plugins/{plugin}/` to add all changes including untracked files
 
 ## Execution Order
 
