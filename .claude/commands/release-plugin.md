@@ -22,7 +22,10 @@ Parse from `$ARGUMENTS`:
 - **plugin** (required): Plugin name (e.g., `browser-testing`, `python-dev`, `dev-utils`)
 - **bump** (optional): Version bump type - `patch` (default), `minor`, or `major`
 
+**First release detection:** If the plugin's current version in marketplace.json is `1.0.0` and there is no existing git tag `{plugin}-v1.0.0`, this is the first release. Skip the bump — use `1.0.0` as-is. Do not prompt for patch/minor/major.
+
 **Examples:**
+- `/release-plugin openclaw` → first release, uses 1.0.0 (no tag exists yet)
 - `/release-plugin python-dev` → patch bump for python-dev
 - `/release-plugin dev-utils minor` → minor bump for dev-utils
 - `/release-plugin browser-testing major` → major bump for browser-testing
@@ -34,19 +37,20 @@ Parse from `$ARGUMENTS`:
    - If no changes exist, warn the user and ask if they want to proceed with just a version bump
 2. **Stage all plugin changes** with `git add plugins/{plugin}/`
 3. **Read current marketplace.json** to get the current version for `{plugin}`
-4. **Calculate new version** based on `{bump}` (default: patch)
+4. **Check if this is a first release**: run `git tag -l "{plugin}-v*"` — if no tags exist and version is `1.0.0`, skip the bump and use `1.0.0`
+5. **Calculate new version** (skip if first release) based on `{bump}` (default: patch)
    - patch: 1.2.3 → 1.2.4
    - minor: 1.2.3 → 1.3.0
    - major: 1.2.3 → 2.0.0
-5. **Update marketplace.json** with the new version
-6. **Stage marketplace.json** with `git add .claude-plugin/marketplace.json`
-7. **Show staged changes** with `git diff --cached --stat` for user review
-8. **Commit all changes** - the commit message must describe WHAT was added/changed, NOT just "Release vX.Y.Z"
+6. **Update marketplace.json** with the new version (skip if first release — already `1.0.0`)
+7. **Stage marketplace.json** with `git add .claude-plugin/marketplace.json`
+8. **Show staged changes** with `git diff --cached --stat` for user review
+9. **Commit all changes** - the commit message must describe WHAT was added/changed, NOT just "Release vX.Y.Z"
    - Title format: `feat({plugin}): {what was added}` - e.g., "feat(dev-utils): Add /parallel-implement command"
    - Body: describe the key features/changes in bullet points
    - The version number goes in the tag, NOT the commit title
-9. **Create annotated git tag** `{plugin}-v{new_version}` with release notes
-10. **Report** the new version and next steps
+10. **Create annotated git tag** `{plugin}-v{new_version}` with release notes
+11. **Report** the new version and next steps
 
 ## Critical Rules
 
@@ -68,7 +72,11 @@ git add plugins/{plugin}/
 # 3. Read marketplace.json for current version
 cat .claude-plugin/marketplace.json
 
-# 4. Update marketplace.json with new version (use Edit tool)
+# 3b. Check if first release (no existing tags for this plugin)
+git tag -l "{plugin}-v*"
+# If no tags and version is 1.0.0 → first release, skip bump and marketplace update
+
+# 4. Update marketplace.json with new version (use Edit tool) — skip if first release
 
 # 5. Stage marketplace.json
 git add .claude-plugin/marketplace.json
