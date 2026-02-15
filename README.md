@@ -94,6 +94,13 @@ General development utilities and helpers.
 - `create-claude-code-extension` - Guide for creating Claude Code subagents, slash commands, or skills
 - `sync-permissions` - Bundled Python script for permission discovery
 
+### testing
+
+Test discipline enforcement for AI coding agents.
+
+**Skills:**
+- `handling-test-failures` - Never dismiss failing tests as pre-existing, unrelated, or flaky without full investigation and evidence
+
 ## Creating New Extensions
 
 See the [Claude Code documentation](https://code.claude.com/docs) for details on creating:

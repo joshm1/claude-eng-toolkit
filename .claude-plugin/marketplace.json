@@ -46,6 +46,12 @@
       "source": "./plugins/openclaw/.claude",
       "description": "OpenClaw skill authoring: writing SKILL.md files, frontmatter, metadata gating, and directory structure for OpenClaw agents",
       "version": "1.0.0"
+    },
+    {
+      "name": "testing",
+      "source": "./plugins/testing/.claude",
+      "description": "Test discipline enforcement: never dismiss failing tests as pre-existing, unrelated, or flaky without investigation and evidence",
+      "version": "1.0.0"
     }
   ]
 }

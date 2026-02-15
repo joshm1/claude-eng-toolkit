@@ -1,0 +1,82 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## What This Is
+
+A Claude Code plugin marketplace — a collection of plugins that extend Claude Code with agents, slash commands, skills, hooks, and MCP integrations. Plugins are installed via `/plugin marketplace add joshm1/joshm1-claude-plugins`.
+
+## Repository Structure
+
+```
+.claude-plugin/marketplace.json   # Central plugin registry (versions, sources)
+.claude/commands/                  # Repo-level commands (e.g., /release-plugin)
+plugins/
+  <plugin-name>/
+    .claude/
+      agents/        # Subagent definitions (.md with YAML frontmatter)
+      commands/      # Slash commands (.md with YAML frontmatter)
+      skills/        # Each skill is a directory:
+        <skill-name>/
+          SKILL.md        # Main skill content
+          references/     # Supporting docs
+          scripts/        # Automation scripts (.py)
+      hooks/          # Event-driven hooks
+```
+
+## Plugin Component Formats
+
+All components are **Markdown files with YAML frontmatter**. Claude Code auto-discovers them from the `.claude/` subdirectories (no manual registration needed).
+
+**Agents** — autonomous subagents with specified tools and model:
+```yaml
+---
+name: agent-name
+description: When and what this agent does
+tools: Bash, Read, Edit, Grep, Glob   # or YAML array
+model: haiku                            # haiku | sonnet | opus
+---
+```
+
+**Commands** — user-invocable slash commands:
+```yaml
+---
+description: What the command does
+argument-hint: <required> [optional]
+arguments:
+  - name: arg_name
+    description: What it is
+    required: true
+allowed-tools: Task, Read, Bash        # restrict available tools
+---
+```
+Commands reference arguments via `$ARGUMENTS` in the body.
+
+**Skills** — knowledge bases invoked by the Skill tool. The `SKILL.md` frontmatter has `name` and `description` (the description controls when Claude auto-invokes it). Supporting files go in `references/` and `scripts/` subdirs.
+
+## Versioning & Releases
+
+Each plugin has a semantic version in `.claude-plugin/marketplace.json`. To release:
+```
+/release-plugin <plugin-name> [patch|minor|major]
+```
+This stages changes, bumps version, commits (with descriptive message — not just "Release vX.Y.Z"), and creates an annotated git tag `<plugin>-v<version>`.
+
+## Current Plugins
+
+| Plugin | Description |
+|--------|-------------|
+| `python-dev` | pytest agents, pyright strict types, ruff-fix, code smell audit |
+| `typescript-dev` | Post-edit TypeScript + Biome type/lint checker |
+| `browser-testing` | Playwright MCP browser automation and E2E documentation |
+| `git-public` | Secret scanning, semantic commits, commit history review |
+| `dev-utils` | Worktree management, parallel implementation, extension scaffolding |
+| `react-native-appium` | Appium E2E TDD workflow, testID auditing, Page Object patterns |
+
+## Conventions
+
+- **Kebab-case** for all directory and file names
+- **Model selection**: haiku for fast/lightweight checks, sonnet for standard tasks, opus for complex reasoning
+- Skills that include Python scripts use `uv run` to execute them
+- Commit messages follow conventional commits: `feat(plugin-name): describe what changed`
+- Tags follow pattern: `plugin-name-vX.Y.Z`
