@@ -258,9 +258,9 @@ def detect_cosmos_url(project_dir: Path) -> str | None:
 
 
 def compute_screenshot_base_dir(
-    project_dir: Path, screenshot_dirs: list[dict]
+    project_dir: Path, output_dir: Path, screenshot_dirs: list[dict]
 ) -> str:
-    """Compute screenshotBaseDir relative from HTML output to screenshot parent."""
+    """Compute screenshotBaseDir relative from output dir to screenshot parent."""
     if not screenshot_dirs:
         return "."
 
@@ -270,16 +270,24 @@ def compute_screenshot_base_dir(
         if ss_dir.is_dir() and "node_modules" not in ss_dir.parts:
             parents.add(ss_dir.parent)
 
-    if len(parents) == 1:
-        parent = parents.pop()
-        return str(parent.relative_to(project_dir))
+    if not parents:
+        return "."
 
-    # Multiple parents — use the common ancestor
-    common = Path(*[p for p in min(parents, key=lambda x: len(x.parts)).parts])
-    for parent in parents:
-        while not str(parent).startswith(str(common)):
-            common = common.parent
-    return str(common.relative_to(project_dir))
+    if len(parents) == 1:
+        target = parents.pop()
+    else:
+        target = Path(*[p for p in min(parents, key=lambda x: len(x.parts)).parts])
+        for p in parents:
+            while not str(p).startswith(str(target)):
+                target = target.parent
+
+    # Compute relative path from output_dir to target
+    try:
+        return str(target.relative_to(output_dir))
+    except ValueError:
+        # output_dir is under project_dir; go up then into target
+        ups = len(output_dir.relative_to(project_dir).parts)
+        return str(Path(*[".."] * ups) / target.relative_to(project_dir))
 
 
 def _detect_border_inset(
@@ -319,21 +327,22 @@ def _detect_border_inset(
     return None
 
 
-def scan(project_dir: Path, cosmos_url: str | None, *, auto_crop: bool = False) -> dict:
+def scan(project_dir: Path, output_dir: Path, cosmos_url: str | None, *, auto_crop: bool = False) -> dict:
     """Scan project and return complete review data."""
     screenshots = find_screenshots(project_dir, auto_crop=auto_crop)
     if not screenshots:
         print("No screenshots found.", file=sys.stderr)
         sys.exit(1)
 
-    base_dir = compute_screenshot_base_dir(project_dir, screenshots)
+    base_dir = compute_screenshot_base_dir(project_dir, output_dir, screenshots)
     cosmos = cosmos_url or detect_cosmos_url(project_dir)
 
     # Detect border from first screenshot (only with --auto-crop)
     border_inset = _detect_border_inset(project_dir, screenshots) if auto_crop else None
 
     data = {
-        "title": f"{project_dir.name} Screenshot Review",
+        "title": "Screenshot Review",
+        "projectPath": str(project_dir),
         "cosmosBaseUrl": cosmos,
         "screenshotBaseDir": base_dir,
         "screenshots": screenshots,
@@ -377,35 +386,73 @@ def validate_data(data: dict, tmp_dir: Path) -> bool:
         tmp_file.unlink(missing_ok=True)
 
 
-def build_html(data: dict, output_path: Path) -> None:
-    """Inject CSS, JS, and JSON data into template and write output."""
-    template = TEMPLATE_PATH.read_text()
-    styles = STYLES_PATH.read_text()
-    app_js = APP_JS_PATH.read_text()
+def build(data: dict, output_dir: Path) -> Path:
+    """Copy static assets and write data JS file to output directory."""
+    import shutil
 
-    app_js_with_data = app_js.replace("__SCREENSHOT_DATA__", json.dumps(data, indent=2))
-    html = template.replace("__STYLES__", styles)
-    html = html.replace("__APP_JS__", app_js_with_data)
-    output_path.write_text(html)
-    print(f"Wrote {output_path}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Write screenshot data as a JS variable (works with file:// and http://)
+    data_js = output_dir / "screenshot-data.js"
+    data_js.write_text(f"const REVIEW_DATA = {json.dumps(data, indent=2)};\n")
+
+    # Copy static assets alongside the data (template.html → index.html)
+    for asset in [TEMPLATE_PATH, STYLES_PATH, APP_JS_PATH]:
+        dest = output_dir / ("index.html" if asset.name == "template.html" else asset.name)
+        shutil.copy2(asset, dest)
+
+    html_path = output_dir / "index.html"
+    print(f"Wrote {output_dir}/ ({len(data.get('screenshots', []))} screenshots)")
+    return html_path
 
 
-def serve(html_path: Path, port: int) -> None:
-    """Serve the HTML file directory locally."""
+def _get_tailscale_ip() -> str | None:
+    """Try to get the Tailscale IP address."""
+    try:
+        result = subprocess.run(
+            ["tailscale", "ip", "-4"], capture_output=True, text=True, timeout=3
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    return None
+
+
+def serve(html_path: Path, project_dir: Path, port: int) -> None:
+    """Serve from the project root with the review app at /."""
     import http.server
     import os
     import webbrowser
 
-    directory = html_path.parent
-    filename = html_path.name
-    url = f"http://localhost:{port}/{filename}"
+    review_dir = str(html_path.parent.relative_to(project_dir))
 
-    print(f"Serving at {url}")
-    webbrowser.open(url)
+    class ReviewHandler(http.server.SimpleHTTPRequestHandler):
+        """Routes / to the review app, everything else to project root."""
 
-    os.chdir(directory)
-    handler = http.server.SimpleHTTPRequestHandler
-    server = http.server.HTTPServer(("0.0.0.0", port), handler)
+        def translate_path(self, path):
+            # Requests for review assets (/, /app.js, /styles.css, /screenshot-data.js)
+            review_assets = {"/app.js", "/styles.css", "/screenshot-data.js"}
+            if path == "/" or path in review_assets:
+                mapped = f"/{review_dir}{path}" if path != "/" else f"/{review_dir}/index.html"
+                return super().translate_path(mapped)
+            return super().translate_path(path)
+
+        def log_message(self, format, *args):
+            pass  # suppress request logs
+
+    local_url = f"http://localhost:{port}/"
+    print(f"\n  Local:     {local_url}")
+
+    ts_ip = _get_tailscale_ip()
+    if ts_ip:
+        print(f"  Tailscale: http://{ts_ip}:{port}/")
+
+    print()
+    webbrowser.open(local_url)
+
+    os.chdir(project_dir)
+    server = http.server.HTTPServer(("0.0.0.0", port), ReviewHandler)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -418,7 +465,7 @@ def main() -> None:
     )
     parser.add_argument("project_dir", type=Path, help="Project root directory to scan")
     parser.add_argument(
-        "--output", "-o", type=Path, default=None, help="Output HTML path (default: <project>/screenshot-review.html)"
+        "--output", "-o", type=Path, default=None, help="Output directory (default: <project>/.screenshot-review/)"
     )
     parser.add_argument(
         "--cosmos-url", type=str, default=None, help="Cosmos base URL (auto-detected from .ports.json)"
@@ -439,19 +486,19 @@ def main() -> None:
         sys.exit(1)
 
     # Scan
-    data = scan(project_dir, args.cosmos_url, auto_crop=args.auto_crop)
+    output_dir = args.output or project_dir / ".screenshot-review"
+    data = scan(project_dir, output_dir, args.cosmos_url, auto_crop=args.auto_crop)
 
     # Validate
     if not validate_data(data, project_dir):
         sys.exit(1)
 
     # Build
-    output = args.output or project_dir / "screenshot-review.html"
-    build_html(data, output)
+    html_path = build(data, output_dir)
 
     # Serve
     if args.serve is not None:
-        serve(output, args.serve)
+        serve(html_path, project_dir, args.serve)
 
 
 if __name__ == "__main__":

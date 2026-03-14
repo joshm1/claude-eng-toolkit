@@ -3,35 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Component Screenshot Review</title>
+<title>Screenshot Review</title>
 <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
-<style>
-__STYLES__
-</style>
+<script src="screenshot-data.js"></script>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div id="app">
-  <div class="header">
-    <h1>{{ data.title }}</h1>
-    <button v-if="issueEntries.length > 0" class="copy-prompt-btn" @click="togglePromptPreview">
-      Fix Prompt ({{ issueEntries.length }})
-    </button>
-    <div class="stats">{{ filtered.length }} of {{ data.screenshots.length }} screenshots</div>
-  </div>
-
-  <div class="filters">
-    <button class="filter-btn" :class="{ active: activeFilter === 'all' }" @click="setFilter('all')">
-      All<span class="filter-count">({{ data.screenshots.length }})</span>
-    </button>
-    <button v-for="c in components" :key="c" class="filter-btn" :class="{ active: activeFilter === c }" @click="setFilter(c)">
-      {{ c }}<span class="filter-count">({{ countByComponent(c) }})</span>
-    </button>
-    <div class="view-toggle">
-      <button v-if="hasMode('dark')" class="filter-btn" :class="{ active: colorMode === 'dark' }" @click="colorMode = 'dark'" title="Dark mode">&#9790;</button>
-      <button v-if="hasMode('light')" class="filter-btn" :class="{ active: colorMode === 'light' }" @click="colorMode = 'light'" title="Light mode">&#9788;</button>
-      <span class="separator"></span>
-      <button class="view-btn" :class="{ active: viewMode === 'grid' }" @click="viewMode = 'grid'" title="Grid view">&#9638;</button>
-      <button class="view-btn" :class="{ active: viewMode === 'list' }" @click="viewMode = 'list'" title="Group by component">&#9776;</button>
+  <div class="toolbar">
+    <div class="toolbar-top">
+      <div class="path-group">
+        <span class="path-pill">{{ projectInfo.repo }}</span>
+        <span v-if="projectInfo.worktree" class="path-pill path-pill-wt">{{ projectInfo.worktree }}</span>
+        <button class="copy-path-btn" @click="copyPath" :title="data.projectPath">{{ pathCopied ? '&#10003;' : '&#128203;' }}</button>
+      </div>
+      <div class="toolbar-actions">
+        <button v-if="issueEntries.length > 0" class="icon-btn icon-btn-issue" @click="togglePromptPreview" title="Copy fix prompt">&#9888; {{ issueEntries.length }}</button>
+        <button v-if="hasAnyReviews" class="icon-btn" @click="clearAllReviews" title="Clear all reviews">&#10005;</button>
+        <div class="view-toggle">
+          <button v-if="hasMode('dark')" class="filter-btn" :class="{ active: colorMode === 'dark' }" @click="colorMode = 'dark'" title="Dark mode">&#9790;</button>
+          <button v-if="hasMode('light')" class="filter-btn" :class="{ active: colorMode === 'light' }" @click="colorMode = 'light'" title="Light mode">&#9788;</button>
+          <span class="separator"></span>
+          <button class="view-btn" :class="{ active: viewMode === 'grid' }" @click="viewMode = 'grid'" title="Grid view">&#9638;</button>
+          <button class="view-btn" :class="{ active: viewMode === 'list' }" @click="viewMode = 'list'" title="Group by component">&#9776;</button>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-filters">
+      <button class="filter-btn" :class="{ active: activeFilter === 'all' }" @click="setFilter('all')">
+        All<span class="filter-count">({{ data.screenshots.length }})</span>
+      </button>
+      <button v-if="issueEntries.length > 0" class="filter-btn filter-btn-issues" :class="{ active: showIssuesOnly }" @click="showIssuesOnly = !showIssuesOnly">
+        Issues<span class="filter-count">({{ issueEntries.length }})</span>
+      </button>
+      <button v-for="c in components" :key="c" class="filter-btn" :class="{ active: activeFilter === c }" @click="setFilter(c)">
+        {{ c }}<span class="filter-count">({{ countByComponent(c) }})</span>
+      </button>
     </div>
   </div>
 
@@ -124,8 +131,6 @@ __STYLES__
   </div>
 </div>
 
-<script>
-__APP_JS__
-</script>
+<script src="app.js"></script>
 </body>
 </html>

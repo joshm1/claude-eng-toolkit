@@ -2,8 +2,20 @@ const { createApp, ref, computed, watch, nextTick } = Vue;
 const STORAGE_KEY = "screenshot-review-state";
 const COMMENTS_KEY = "screenshot-review-comments";
 
-// Injected by build script
-const REVIEW_DATA = __SCREENSHOT_DATA__;
+// REVIEW_DATA is loaded via <script src="screenshot-data.js"> in the HTML
+
+function parseProjectPath(fullPath) {
+  if (!fullPath) return { repo: "", worktree: "" };
+  // Check for .worktrees pattern: /path/to/repo/.worktrees/worktree-name
+  const wtMatch = fullPath.match(/^(.+?)\/\.worktrees\/(.+?)$/);
+  if (wtMatch) {
+    const repoPath = wtMatch[1];
+    const repoName = repoPath.split("/").pop();
+    return { repo: repoName, worktree: wtMatch[2] };
+  }
+  // Just the directory name
+  return { repo: fullPath.split("/").pop(), worktree: "" };
+}
 
 createApp({
   setup() {
@@ -59,12 +71,19 @@ createApp({
       ...new Set(data.value.screenshots.flatMap((s) => s.modes)),
     ]);
 
+    const showIssuesOnly = ref(false);
+
     const filtered = computed(() => {
-      const list = data.value.screenshots.filter((s) =>
+      let list = data.value.screenshots.filter((s) =>
         s.modes.includes(colorMode.value),
       );
-      if (activeFilter.value === "all") return list;
-      return list.filter((s) => s.component === activeFilter.value);
+      if (activeFilter.value !== "all") {
+        list = list.filter((s) => s.component === activeFilter.value);
+      }
+      if (showIssuesOnly.value) {
+        list = list.filter((s) => reviews.value[reviewKey(s)] === "issue");
+      }
+      return list;
     });
 
     const filteredComponents = computed(() => {
@@ -181,6 +200,16 @@ createApp({
       batchComment.value = "";
     }
 
+    const hasAnyReviews = computed(
+      () => Object.keys(reviews.value).length > 0,
+    );
+
+    function clearAllReviews() {
+      reviews.value = {};
+      comments.value = {};
+      selected.value = new Set();
+    }
+
     function cancelBatch() {
       selected.value = new Set();
       batchComment.value = "";
@@ -196,7 +225,22 @@ createApp({
 
     function cosmosUrl(s) {
       if (!data.value.cosmosBaseUrl || !s.fixturePath) return null;
-      const fixture = { path: s.fixturePath };
+      // Cosmos expects paths relative to the package root (e.g., src/components/Foo.fixture.tsx)
+      // Strip the screenshotBaseDir prefix if it's a parent of the fixture path
+      let fixturePath = s.fixturePath;
+      const base = data.value.screenshotBaseDir;
+      if (base) {
+        // Walk up from screenshotBaseDir to find the src/ ancestor
+        const parts = base.split("/");
+        const srcIdx = parts.indexOf("src");
+        if (srcIdx > 0) {
+          const prefix = parts.slice(0, srcIdx).join("/") + "/";
+          if (fixturePath.startsWith(prefix)) {
+            fixturePath = fixturePath.slice(prefix.length);
+          }
+        }
+      }
+      const fixture = { path: fixturePath };
       if (s.displayName) fixture.name = s.displayName;
       return `${data.value.cosmosBaseUrl}/?fixture=${encodeURIComponent(JSON.stringify(fixture))}`;
     }
@@ -206,6 +250,13 @@ createApp({
       return data.value.screenshots.filter(
         (s) => reviews.value[reviewKey(s)] === "issue",
       );
+    });
+
+    // Auto-disable issues filter when no issues remain
+    watch(issueEntries, (entries) => {
+      if (entries.length === 0) {
+        showIssuesOnly.value = false;
+      }
     });
 
     function buildPrompt() {
@@ -259,6 +310,26 @@ createApp({
     }
 
     const promptCopied = ref(false);
+    const pathCopied = ref(false);
+    const projectInfo = computed(() => parseProjectPath(data.value.projectPath));
+
+    function copyPath() {
+      navigator.clipboard.writeText(data.value.projectPath || "");
+      pathCopied.value = true;
+      setTimeout(() => {
+        pathCopied.value = false;
+      }, 2000);
+    }
+
+    // Apply theme class to #app (can't use :class on mount element)
+    const appEl = document.getElementById("app");
+    watch(
+      colorMode,
+      (mode) => {
+        appEl.className = `theme-${mode}`;
+      },
+      { immediate: true },
+    );
 
     // Restore URL state
     const urlComponent = new URLSearchParams(window.location.search).get(
@@ -304,6 +375,12 @@ createApp({
       buildPrompt,
       copyPrompt,
       promptCopied,
+      hasAnyReviews,
+      clearAllReviews,
+      copyPath,
+      pathCopied,
+      projectInfo,
+      showIssuesOnly,
       showPromptPreview,
       togglePromptPreview,
     };

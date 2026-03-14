@@ -10,6 +10,10 @@
       "type": "string",
       "description": "Title shown in the gallery header"
     },
+    "projectPath": {
+      "type": "string",
+      "description": "Absolute path to the project root directory"
+    },
     "cosmosBaseUrl": {
       "type": ["string", "null"],
       "description": "Base URL for React Cosmos (e.g., http://localhost:5000). null to hide Cosmos links.",
