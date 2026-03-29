@@ -36,9 +36,17 @@ gh run list --workflow CI --commit $HEAD_SHA --json status,conclusion,databaseId
 |-------|--------|
 | No run for HEAD | Wait — CI hasn't started yet |
 | queued / in_progress | Wait |
-| success | Proceed to step 5 (merge) |
+| success | Proceed to step 2 (check reviews before merging) |
 | failure | Proceed to step 3 (fix) |
 | HTTP 403 (rate limit) | Say "rate limited, will retry" and stop |
+
+**Important:** Some PRs have a "Claude Code Review" check (or similar automated review job). If one exists, check its status:
+
+```bash
+gh pr checks {pr} --json name,status,conclusion
+```
+
+If a review check exists and has status `queued` or `in_progress`, **wait** — do not proceed to step 2 or 5. Automated review comments may not have been posted yet. Only proceed once all review-related checks have completed. If no such check exists, proceed normally.
 
 ### 2. Check for new review comments
 
