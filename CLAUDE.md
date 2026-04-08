@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-A Claude Code plugin marketplace — a collection of plugins that extend Claude Code with agents, slash commands, skills, hooks, and MCP integrations. Plugins are installed via `/plugin marketplace add joshm1/joshm1-claude-plugins`.
+An opinionated collection of Claude Code plugins that encode engineering team practices into automated tooling. Each plugin enforces a specific engineering opinion — strict types, secret scanning, test discipline — as the default behavior inside Claude Code. Plugins are installed via `/plugin marketplace add joshm1/claude-eng-toolkit`.
 
 ## Repository Structure
 
@@ -66,12 +66,14 @@ This stages changes, bumps version, commits (with descriptive message — not ju
 
 | Plugin | Description |
 |--------|-------------|
-| `python-dev` | pytest agents, pyright strict types, ruff-fix, code smell audit |
-| `typescript-dev` | Post-edit TypeScript + Biome type/lint checker |
-| `browser-testing` | Playwright MCP browser automation and E2E documentation |
-| `git-public` | Secret scanning, semantic commits, commit history review |
-| `dev-utils` | Worktree management, parallel implementation, extension scaffolding |
-| `react-native-appium` | Appium E2E TDD workflow, testID auditing, Page Object patterns |
+| `python-dev` | Strict Python type safety (no Any, no cast), pytest workflows, code smell audit |
+| `typescript-dev` | Post-edit type checking and Biome linting in under 30 seconds |
+| `browser-testing` | Headless browser QA with screenshots and documented evidence |
+| `git-public` | Secret scanning before commit, semantic commits, history audit |
+| `dev-utils` | Worktree isolation, parallel implementation, dev infrastructure |
+| `react-native-appium` | TDD workflow for Appium E2E with Page Object patterns |
+| `openclaw` | OpenClaw skill authoring standards and SKILL.md format |
+| `testing` | Zero-tolerance test failure investigation discipline |
 
 ## Conventions
 

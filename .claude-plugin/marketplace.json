@@ -1,56 +1,56 @@
 {
-  "name": "joshm1-claude-plugins",
+  "name": "claude-eng-toolkit",
   "owner": {
-    "name": "Josh M"
+    "name": "Josh McDade"
   },
-  "description": "Personal collection of Claude Code plugins for web development, testing, and git workflows",
+  "description": "Opinionated Claude Code plugins that encode engineering team practices into automated tooling: strict types, secret scanning, test discipline, browser QA, and more",
   "plugins": [
     {
       "name": "python-dev",
       "source": "./plugins/python-dev/.claude",
-      "description": "Python development tools: pytest testing agents, pyright strict types, ruff-fix, and Python code smell auditing with strict type safety enforcement",
+      "description": "Enforce strict Python type safety with zero workarounds (no Any, no cast, no type: ignore), systematic pytest workflows, and code smell detection",
       "version": "1.2.0"
     },
     {
       "name": "typescript-dev",
       "source": "./plugins/typescript-dev/.claude",
-      "description": "TypeScript development tools: quick post-edit type checking and linting to catch errors early",
+      "description": "Catch TypeScript type errors and lint issues at edit time in under 30 seconds, not at CI time 10 minutes later",
       "version": "1.0.0"
     },
     {
       "name": "browser-testing",
       "source": "./plugins/browser-testing/.claude",
-      "description": "Browser automation with agent-browser CLI: E2E documentation and QA with screenshots, user journey walkthroughs, visual testing, UI debugging, and self-verification scripts",
+      "description": "Systematic browser QA with headless automation: walk through your app, capture screenshots, flag visual issues, and produce documented evidence",
       "version": "2.0.0"
     },
     {
       "name": "git-public",
       "source": "./plugins/git-public/.claude",
-      "description": "Safe git workflows for public repositories: secret scanning, semantic commits, and commit history security review",
+      "description": "Scan staged files for secrets before commit, enforce semantic commit messages, and audit existing history for leaked credentials",
       "version": "1.0.0"
     },
     {
       "name": "dev-utils",
       "source": "./plugins/dev-utils/.claude",
-      "description": "General development utilities: skill management, instruction compacting, MCP token tracking, extension creation, git worktree management, screenshot review galleries, and GitHub releases",
+      "description": "Git worktree isolation with port offsets and env copying, parallel multi-agent implementation, GitHub releases, and development infrastructure",
       "version": "1.6.0"
     },
     {
       "name": "react-native-appium",
       "source": "./plugins/react-native-appium/.claude",
-      "description": "React Native/Expo Appium E2E testing: TDD workflow agents, testID auditing, Page Object patterns, WebDriverIO setup, and cross-platform test generation",
+      "description": "TDD workflow for React Native E2E testing with Appium: Page Object patterns, accessibility-first selectors, and cross-platform test generation",
       "version": "1.0.0"
     },
     {
       "name": "openclaw",
       "source": "./plugins/openclaw/.claude",
-      "description": "OpenClaw skill authoring: writing SKILL.md files, frontmatter, metadata gating, and directory structure for OpenClaw agents",
+      "description": "Standards and structure for writing OpenClaw skills: SKILL.md format, metadata gating, installer specs, and ClawHub distribution",
       "version": "1.0.0"
     },
     {
       "name": "testing",
       "source": "./plugins/testing/.claude",
-      "description": "Test discipline enforcement: never dismiss failing tests as pre-existing, unrelated, or flaky without investigation and evidence",
+      "description": "Zero-tolerance test failure discipline: every failure is investigated with evidence before moving on. No pre-existing, no flaky, no excuses.",
       "version": "1.0.0"
     }
   ]

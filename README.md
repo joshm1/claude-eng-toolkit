@@ -1,113 +1,65 @@
-# joshm1-claude-plugins
+# Claude Engineering Toolkit
 
-My personal Claude Code plugins collection.
+> A curated collection of Claude Code plugins that encode engineering team practices into automated tooling. Built by an engineering leader who believes the best team standards aren't documented in wikis — they're enforced by the tools you use every day.
+
+## Why This Exists
+
+Every engineering team has opinions about quality: run the linter, write the tests, don't commit secrets. Most teams put these in a wiki page that gets ignored. Some teams encode them in CI pipelines that catch problems too late. The best teams build them into the developer workflow so the right thing happens by default.
+
+These plugins are that idea applied to AI-assisted development. Each one encodes a specific engineering opinion — strict types by default, secrets scanned before commit, every test failure investigated — and makes it the path of least resistance inside Claude Code.
+
+They're opinionated by design. A plugin that says "maybe consider running tests" is useless. A plugin that refuses to move forward until every failure is explained is a team standard you can actually rely on.
+
+## Plugins
+
+| Plugin | Team Problem It Solves | Key Insight |
+|--------|----------------------|-------------|
+| **python-dev** | Python codebases decay without strict type enforcement | Strict types by default, not opt-in. No `Any`, no `cast()`, no `type: ignore`. |
+| **typescript-dev** | Type errors accumulate between edits and CI | Catch type drift at edit time in under 30 seconds, not at CI time 10 minutes later. |
+| **browser-testing** | Nobody actually tests the UI systematically | Headless browser QA with screenshots as a first-class development workflow. |
+| **git-public** | Secrets leak in public repos because scanning happens too late | Scan staged files for secrets before commit, not after push. Block the commit, not the PR. |
+| **dev-utils** | Context switching between branches kills focus and breaks environments | Git worktree isolation with port offsets, env copying, and parallel implementation across agents. |
+| **react-native-appium** | Mobile E2E tests are unreliable and hard to maintain | TDD workflow with Page Object patterns and accessibility-first selectors (`testID` over XPath). |
+| **openclaw** | AI skill authoring has no standardized format | Structured SKILL.md format with frontmatter, metadata gating, and distribution through ClawHub. |
+| **testing** | "Pre-existing" and "flaky" are excuses to skip investigation | Zero tolerance: every test failure is your responsibility until you prove otherwise with evidence. |
 
 ## Installation
 
-### Using Claude Code Marketplace (Recommended)
-
-The easiest way to install these plugins:
-
 ```bash
-# Add this marketplace to Claude Code
-/plugin marketplace add joshm1/joshm1-claude-plugins
+# Add the marketplace
+/plugin marketplace add joshm1/claude-eng-toolkit
 
-# Install individual plugins
-/plugin install python-dev@joshm1-claude-plugins
-/plugin install typescript-dev@joshm1-claude-plugins
-/plugin install browser-testing@joshm1-claude-plugins
-/plugin install git-public@joshm1-claude-plugins
-/plugin install dev-utils@joshm1-claude-plugins
-```
-
-Then browse available plugins with:
-```bash
+# Browse and install individual plugins
 /plugin
+
+# Or install directly
+/plugin install python-dev@joshm1-claude-eng-toolkit
+/plugin install git-public@joshm1-claude-eng-toolkit
 ```
 
-### Manual Installation
+## What's Inside Each Plugin
 
-For local testing or development:
+Every plugin follows the standard [Claude Code plugin format](https://code.claude.com/docs/en/discover-plugins): agents, slash commands, skills, and hooks inside a `.claude/` directory. Markdown files with YAML frontmatter. No external dependencies beyond what Claude Code already provides.
 
-```bash
-# Add local marketplace
-/plugin marketplace add /path/to/joshm1-claude-plugins
+See individual plugin READMEs for details:
 
-# Or clone and link directly
-git clone https://github.com/joshm1/joshm1-claude-plugins.git
-ln -s /path/to/joshm1-claude-plugins/.claude your-project/.claude
-```
+- [`plugins/browser-testing/`](plugins/browser-testing/) — E2E documentation and QA automation
+- [`plugins/git-public/`](plugins/git-public/) — Secret scanning and semantic commit workflows
+- [`plugins/testing/`](plugins/testing/) — Test failure investigation discipline
+- [`plugins/python-dev/`](plugins/python-dev/) — Strict Python type safety and testing
+- [`plugins/typescript-dev/`](plugins/typescript-dev/) — Post-edit TypeScript checking
+- [`plugins/dev-utils/`](plugins/dev-utils/) — Worktree management and dev infrastructure
+- [`plugins/react-native-appium/`](plugins/react-native-appium/) — Mobile E2E TDD workflow
+- [`plugins/openclaw/`](plugins/openclaw/) — OpenClaw skill authoring standards
 
-## Available Plugins
+## About the Author
 
-### python-dev
+I'm Josh McDade — VP of Engineering with nearly 20 years building software and 12+ years leading engineering teams and organizations. Most recently leading platform engineering, data engineering, DevOps, and product engineering teams. I built these plugins to encode the practices I believe in into tooling that actually enforces them.
 
-Python development tools for testing and code quality.
+Currently exploring what engineering leadership looks like in the AI-native era. If you're hiring, let's talk.
 
-**Subagents:**
-- `pytest-fix` - Analyze and fix failing pytest tests
-- `pytest-runner` - Run pytest tests, analyze failures, and fix broken tests
-- `python-lint-fix` - Fix Python linting errors and warnings with pyright strict type checking
-
-**Commands:**
-- `/python-code-smell-audit` - Audit Python code for common AI coding agent mistakes
-
-**Skills:**
-- `pyright-strict-types` - Enforce strict Python typing standards with pyright type checking
-- `python-code-smell-audit-updater` - Updates the Python code smell audit command when user gives feedback
-- `python-scripts` - Standards for writing Python utility scripts
-
-### typescript-dev
-
-TypeScript development tools for catching type errors and lint issues early.
-
-**Subagents:**
-- `post-edit-checker` - Quick TypeScript and Biome checks after code edits (runs proactively after modifying TypeScript/React code)
-
-### browser-testing
-
-Browser automation and debugging with Playwright MCP.
-
-**Subagents:**
-- `playwright-mcp-agent` - Interactive browser automation for visual testing, UI debugging, screenshots, and E2E test development
-
-### git-public
-
-Safe git workflows for public repositories with secret scanning and security checks.
-
-**Commands:**
-- `/commit` - Interactive git staging and semantic commit workflow
-- `/safe-commit` - Safely commit changes with secret scanning and .gitignore validation
-- `/review-safe-commit-history` - Review existing commit history for security issues and secret leaks
-
-### dev-utils
-
-General development utilities and helpers.
-
-**Commands:**
-- `/compact-instructions` - Compact instruction files
-- `/list-skills` - List all available Claude Code skills
-- `/sync-claude-code-permissions [dir]` - Sync project permissions to user settings (discovers permissions from .claude/settings.json files and adds safe ones to ~/.claude/settings.json)
-- `/update-mcp-token-usage` - Update MCP token usage statistics from /context output
-
-**Skills:**
-- `create-claude-code-extension` - Guide for creating Claude Code subagents, slash commands, or skills
-- `sync-permissions` - Bundled Python script for permission discovery
-
-### testing
-
-Test discipline enforcement for AI coding agents.
-
-**Skills:**
-- `handling-test-failures` - Never dismiss failing tests as pre-existing, unrelated, or flaky without full investigation and evidence
-
-## Creating New Extensions
-
-See the [Claude Code documentation](https://code.claude.com/docs) for details on creating:
-- [Subagents](https://code.claude.com/docs/en/sub-agents)
-- [Slash Commands](https://code.claude.com/docs/en/slash-commands)
-- [Skills](https://code.claude.com/docs/en/skills)
+[LinkedIn](https://www.linkedin.com/in/joshmcdade/) | [GitHub](https://github.com/joshm1)
 
 ## License
 
-MIT
+[MIT](LICENSE)
