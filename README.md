@@ -18,10 +18,13 @@ They're opinionated by design. A plugin that says "maybe consider running tests"
 | **typescript-dev** | Type errors accumulate between edits and CI | Catch type drift at edit time in under 30 seconds, not at CI time 10 minutes later. |
 | **browser-testing** | Nobody actually tests the UI systematically | Headless browser QA with screenshots as a first-class development workflow. |
 | **git-public** | Secrets leak in public repos because scanning happens too late | Scan staged files for secrets before commit, not after push. Block the commit, not the PR. |
-| **dev-utils** | Context switching between branches kills focus and breaks environments | Git worktree isolation with port offsets, env copying, and parallel implementation across agents. |
+| **git-worktrees** | Context switching between branches breaks your local environment | Automatic port isolation, env file transformation, and database naming per worktree. |
+| **ci-automation** | Engineers babysit PRs through CI instead of building | Autonomous PR monitoring, branch triage dashboards, and semantic GitHub releases. |
+| **parallel-agents** | Features get built sequentially even when parts are independent | Wave-planned parallel agents with automated analysis and E2E test sequencing. |
+| **testing** | "Pre-existing" and "flaky" are excuses to skip investigation | Zero tolerance: every test failure is your responsibility until you prove otherwise with evidence. |
 | **react-native-appium** | Mobile E2E tests are unreliable and hard to maintain | TDD workflow with Page Object patterns and accessibility-first selectors (`testID` over XPath). |
 | **openclaw** | AI skill authoring has no standardized format | Structured SKILL.md format with frontmatter, metadata gating, and distribution through ClawHub. |
-| **testing** | "Pre-existing" and "flaky" are excuses to skip investigation | Zero tolerance: every test failure is your responsibility until you prove otherwise with evidence. |
+| **dev-utils** | Miscellaneous development workflow gaps | Instruction compacting, permission syncing, screenshot galleries, playground builders. |
 
 ## Installation
 
@@ -43,14 +46,17 @@ Every plugin follows the standard [Claude Code plugin format](https://code.claud
 
 See individual plugin READMEs for details:
 
-- [`plugins/browser-testing/`](plugins/browser-testing/) — E2E documentation and QA automation
-- [`plugins/git-public/`](plugins/git-public/) — Secret scanning and semantic commit workflows
-- [`plugins/testing/`](plugins/testing/) — Test failure investigation discipline
 - [`plugins/python-dev/`](plugins/python-dev/) — Strict Python type safety and testing
 - [`plugins/typescript-dev/`](plugins/typescript-dev/) — Post-edit TypeScript checking
-- [`plugins/dev-utils/`](plugins/dev-utils/) — Worktree management and dev infrastructure
+- [`plugins/browser-testing/`](plugins/browser-testing/) — E2E documentation and QA automation
+- [`plugins/git-public/`](plugins/git-public/) — Secret scanning and semantic commit workflows
+- [`plugins/git-worktrees/`](plugins/git-worktrees/) — Worktree environment isolation
+- [`plugins/ci-automation/`](plugins/ci-automation/) — PR babysitting, branch triage, GitHub releases
+- [`plugins/parallel-agents/`](plugins/parallel-agents/) — Wave-planned parallel implementation
+- [`plugins/testing/`](plugins/testing/) — Test failure investigation discipline
 - [`plugins/react-native-appium/`](plugins/react-native-appium/) — Mobile E2E TDD workflow
 - [`plugins/openclaw/`](plugins/openclaw/) — OpenClaw skill authoring standards
+- [`plugins/dev-utils/`](plugins/dev-utils/) — Meta utilities and scaffolding
 
 ## About the Author
 

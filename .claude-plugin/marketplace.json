@@ -30,10 +30,28 @@
       "version": "1.0.0"
     },
     {
-      "name": "dev-utils",
-      "source": "./plugins/dev-utils/.claude",
-      "description": "Git worktree isolation with port offsets and env copying, parallel multi-agent implementation, GitHub releases, and development infrastructure",
-      "version": "1.6.0"
+      "name": "git-worktrees",
+      "source": "./plugins/git-worktrees/.claude",
+      "description": "Environment isolation for git worktrees: automatic port offsets, env file copying with transformation, database isolation, and Claude settings path mapping",
+      "version": "1.0.0"
+    },
+    {
+      "name": "ci-automation",
+      "source": "./plugins/ci-automation/.claude",
+      "description": "Autonomous CI/PR lifecycle: babysit PRs through CI failures and reviews, triage stale branches, and create semantic GitHub releases from conventional commits",
+      "version": "1.0.0"
+    },
+    {
+      "name": "parallel-agents",
+      "source": "./plugins/parallel-agents/.claude",
+      "description": "Split features into independent chunks and run multiple Claude Code subagents concurrently for parallel implementation",
+      "version": "1.0.0"
+    },
+    {
+      "name": "testing",
+      "source": "./plugins/testing/.claude",
+      "description": "Zero-tolerance test failure discipline: every failure is investigated with evidence before moving on. No pre-existing, no flaky, no excuses.",
+      "version": "1.1.0"
     },
     {
       "name": "react-native-appium",
@@ -48,10 +66,10 @@
       "version": "1.0.0"
     },
     {
-      "name": "testing",
-      "source": "./plugins/testing/.claude",
-      "description": "Zero-tolerance test failure discipline: every failure is investigated with evidence before moving on. No pre-existing, no flaky, no excuses.",
-      "version": "1.0.0"
+      "name": "dev-utils",
+      "source": "./plugins/dev-utils/.claude",
+      "description": "Meta utilities for Claude Code development: instruction compacting, permission syncing, screenshot review galleries, playground builders, and extension scaffolding",
+      "version": "2.0.0"
     }
   ]
 }

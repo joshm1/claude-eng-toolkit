@@ -70,10 +70,13 @@ This stages changes, bumps version, commits (with descriptive message — not ju
 | `typescript-dev` | Post-edit type checking and Biome linting in under 30 seconds |
 | `browser-testing` | Headless browser QA with screenshots and documented evidence |
 | `git-public` | Secret scanning before commit, semantic commits, history audit |
-| `dev-utils` | Worktree isolation, parallel implementation, dev infrastructure |
+| `git-worktrees` | Worktree environment isolation with port offsets, env copying, database naming |
+| `ci-automation` | Autonomous PR babysitting, branch triage dashboards, semantic GitHub releases |
+| `parallel-agents` | Wave-planned parallel implementation across concurrent subagents |
+| `testing` | Zero-tolerance test failure and error investigation discipline |
 | `react-native-appium` | TDD workflow for Appium E2E with Page Object patterns |
 | `openclaw` | OpenClaw skill authoring standards and SKILL.md format |
-| `testing` | Zero-tolerance test failure investigation discipline |
+| `dev-utils` | Meta utilities: instruction compacting, permission syncing, screenshot galleries |
 
 ## Conventions
 

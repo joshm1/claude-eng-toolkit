@@ -19,6 +19,7 @@ The principle is simple: bad work is worse than no work. If you can't explain wh
 ## Components
 
 - **Skill: `handling-test-failures`** — Zero-tolerance test failure investigation protocol. Works with pytest, jest, vitest, go test, cargo test, JUnit, RSpec, and any other test framework.
+- **Skill: `zero-tolerance-failures`** — Enforcement gate: when ANY errors exist (test failures, type check errors, lint warnings, build failures), this skill blocks progress until every issue is investigated and resolved. No "pre-existing," no "not my problem."
 
 ## Installation
 
